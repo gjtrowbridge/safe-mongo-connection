@@ -1,0 +1,1 @@
+This repository contains the `SafeMongoConnection` class, which will automatically handle dropped MongoDB connections as gracefully as possible.  Specifically, it is built to automatically retry queries in the event that a MongoDB connection has "gone down".  It is promise based.
