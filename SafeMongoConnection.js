@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 var Q = require('q');
 Q.longStackSupport = true;
 
-// Created to handle the frequent disconnects of our Azure-deployed mongo replica set
+// Created to handle the frequent disconnects of our mongo replica set
 // (necessary regardless b/c every database is bound to have issues once
 //  in a while, though ours seems to have more than most)
 var SafeMongoConnection = function(connectionURL, connectionOptions) {
@@ -10,6 +10,7 @@ var SafeMongoConnection = function(connectionURL, connectionOptions) {
   this.connectionURL = connectionURL;
   this.connectionOptions = connectionOptions;
   this.maxRetries = 10;
+  this.msBetweenRetries = 1000;
 };
 
 // Attempts to connect to the database (with certain # of retries)
@@ -33,8 +34,13 @@ SafeMongoConnection.prototype.connect = function() {
 
       if (attemptsRemaining > 1) {
         attemptsRemaining--;
-        console.log('Attempting to reconnect (' + attemptsRemaining + ' attempt(s) remaining)...');
-        return attemptToConnect(attemptsRemaining);
+        console.log('Will attempt to reconnect in ' + this.msBetweenRetries +
+                    ' milliseconds (' + attemptsRemaining +
+                    ' attempt(s) remaining)...');
+        return Q.delay(this.msBetweenRetries)
+        .then(function() {
+          return attemptToConnect(attemptsRemaining);
+        });
       } else {
         console.log('Unable to connect to database.');
         throw(err);
@@ -85,6 +91,7 @@ SafeMongoConnection.prototype.confirmConnection = function() {
       // If the connection is up, return the database
       if (pingResult) {
         return this.db;
+
       // If not, attempt to reconnect
       } else {
         return handleDownedConnection();
