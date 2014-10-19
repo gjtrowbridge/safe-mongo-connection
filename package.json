@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/gjtrowbridge/safe-mongo-connection/issues"
   },
-  "homepage": "https://github.com/gjtrowbridge/safe-mongo-connection"
+  "homepage": "https://github.com/gjtrowbridge/safe-mongo-connection",
+  "dependencies": {
+    "mongodb": "^1.4.19",
+    "q": "^1.0.1"
+  }
 }
